@@ -65,7 +65,6 @@ function! buffer#CreateNewScratch(bufname)
 		:setlocal buftype=nowrite
 		:setlocal bufhidden=hide
 		:setlocal noswapfile
-		:set nocul
 endfunction
 
 function! buffer#GoToScratch(bufname,lines)
@@ -81,9 +80,9 @@ function! buffer#GoToScratch(bufname,lines)
 		:setlocal buftype=nowrite
 		:setlocal bufhidden=wipe
 		:setlocal noswapfile nobuflisted nomodified
-		:set nocul
 	endif
 endfunction
+""echo buffer#GoToScratch("bufalo",10)
 
 ""TOGGLE CONCEAL CURSOR:
 function! buffer#ConcealCursorToggle()
