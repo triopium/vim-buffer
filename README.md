@@ -3,4 +3,4 @@
 # Dependency
 * none
 # Testting
-* There are commented tests. Tests can be run conveniently with vim-runner plugin.
+* There are commented tests. You can use vim-runner to run tests conveniently. 

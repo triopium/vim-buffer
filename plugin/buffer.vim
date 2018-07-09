@@ -12,7 +12,6 @@ function! buffer#BuffersGetListed()
 endfunction
 ""echo buffer#BuffersGetListed()
 ""echo getbufinfo({'buflisted':1})
-""echo getbufinfo({'buflisted':1}){''}
 
 ""GET BUFFER NAMES WITH FULL PATH:
 function! buffer#BuffersGetListedNames()
@@ -56,7 +55,7 @@ function! buffer#DeleteAllOther()
 		endif
 	endfor
 endfunction
-""echo BuffDelAllOther()
+""echo buffer#DeleteAllOther()
 
 ""CREATE SCRATCH BUFFER:
 function! buffer#CreateNewScratch(bufname)
@@ -92,7 +91,7 @@ function! buffer#ConcealCursorToggle()
 		setlocal concealcursor=
 	endif
 endfunction
-	""call buffer#ConcealCursorToggle()
+""call buffer#ConcealCursorToggle()
 
 "Go to window number"
 fu! buffer#GoToWindow(nr)
