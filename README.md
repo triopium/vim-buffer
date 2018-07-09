@@ -1,5 +1,5 @@
 # vim-buffer
-* Various functions library which deals with buffers.
+* Library of various functions which deal with buffers.
 # Dependency
 * none
 # Testting
