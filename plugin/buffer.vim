@@ -71,8 +71,6 @@ function! buffer#GoToScratch(bufname,lines)
 	if  l:bfnr > 0
 	"If buffer is visible, go to it and clear contents"
 		exe l:bfnr . "wincmd w"
-	elseif l:bfnr == winnr()
-		echo "already selected"
 	else
 		"Create new scratch buffer"
 		exe  a:lines . 'new' a:bufname
