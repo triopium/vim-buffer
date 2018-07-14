@@ -73,7 +73,7 @@ function! buffer#GoToScratch(bufname,lines)
 		exe l:bfnr . "wincmd w"
 	else
 		"Create new scratch buffer"
-		exe  a:lines . 'new' a:bufname
+		exe  a:lines . 'new ' a:bufname
 		:setlocal buftype=nowrite
 		:setlocal bufhidden=wipe
 		:setlocal noswapfile nobuflisted nomodified
