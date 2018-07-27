@@ -139,8 +139,8 @@ function! buffer#BufferListChanger()
 		exe 'syn match ' . l:hname . ' ' . shellescape(l:patt)
 
 		""Mapping
-		exe 'nnoremap <CR> :echo buffer#ExtractGoToBuffNr(' . l:worig . ')<CR>'
-		nnoremap d :call buffer#ExtractDellBuffer()<CR>
+		exe 'nnoremap <buffer> <CR> :echo buffer#ExtractGoToBuffNr(' . l:worig . ')<CR>'
+		nnoremap <buffer> d :call buffer#ExtractDellBuffer()<CR>
 	endif
 endfunction
 ""silent call buffer#BufferListChanger()
