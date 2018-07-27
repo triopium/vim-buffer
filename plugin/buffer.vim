@@ -138,7 +138,9 @@ function! buffer#BufferListChanger()
 		exe 'highlight ' . l:hname . ' guifg=#32FF30'
 		exe 'syn match ' . l:hname . ' ' . shellescape(l:patt)
 
+		""Mapping
 		exe 'nnoremap <CR> :echo buffer#ExtractGoToBuffNr(' . l:worig . ')<CR>'
+		nnoremap d :call buffer#ExtractDellBuffer()<CR>
 	endif
 endfunction
 ""silent call buffer#BufferListChanger()
@@ -162,11 +164,21 @@ function! buffer#BufferListConstruct()
 endfunction
 ""call buffer#BufferListConstruct()
 
+""EXTRACT BUFFER NUMBER FROM LIST AND GO TO BUFFER:
 function! buffer#ExtractGoToBuffNr(worig)
 	let l:line=getline('.')
 	let l:bnr=matchstr(l:line,'\d*')
 	bw
 	call buffer#GoToWindow(a:worig) 
-	exe 'b ' . l:bnr
+	silent exe 'b ' . l:bnr
+endfunction
+""echo buffer#ExtracBuffNr()
+
+""EXTRACT BUFFER NUMBER FROM LIST AND DELETE BUFFER:
+function! buffer#ExtractDellBuffer()
+	let l:line=getline('.')
+	let l:bnr=matchstr(l:line,'\d*')
+	normal! dd
+	exe 'bw ' . l:bnr
 endfunction
 ""echo buffer#ExtracBuffNr()
