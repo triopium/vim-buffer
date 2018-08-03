@@ -200,24 +200,23 @@ endfunction
  
 
 ""CREATE OUTLINE LIST OF MARKUP FILE:
-function! buffer#OutlineTxtMaker(patt)
-	let l:file=expand('%:p')
-	let l:bashc='grep -E ' . a:patt . ' -n ' . l:file
+function! buffer#OutlineTxtMaker(patt,file)
+	let l:bashc='grep -E ' . a:patt . ' -n ' . a:file
 	let l:ls=systemlist(l:bashc)
 	return l:ls
 endfunction
 "echo buffer#OutlineMaker("let")
 
 ""CREATE OUTLINE LIST UP TO LEVEL:
-function! buffer#OutlineTxtMakerLevel(lv)
+function! buffer#OutlineTxtMakerLevel(lv,file)
 	if a:lv==1
-		let l:lst=buffer#OutlineTxtMaker('^#[[:space:]]')
+		let l:lst=buffer#OutlineTxtMaker('^#[[:space:]]',a:file)
 	elseif a:lv==2
-		let l:lst=buffer#OutlineTxtMaker('^\(#\)\{1,2\}[[:space:]]')
+		let l:lst=buffer#OutlineTxtMaker('^\(#\)\{1,2\}[[:space:]]',a:file)
 	elseif a:lv==3
-		let l:lst=buffer#OutlineTxtMaker('^\(#\)\{1,3\}[[:space:]]')
+		let l:lst=buffer#OutlineTxtMaker('^\(#\)\{1,3\}[[:space:]]',a:file)
 	elseif a:lv==4
-		let l:lst=buffer#OutlineTxtMaker('^\(#\)\{1,4\}[[:space:]]')
+		let l:lst=buffer#OutlineTxtMaker('^\(#\)\{1,4\}[[:space:]]',a:file)
 	endif
 	return l:lst
 endfunction
@@ -263,7 +262,8 @@ function! buffer#OutlineTxtShow(lv)
 	let l:bufnr=bufnr("%")
 	let l:worig=win_getid()
 	let l:scname=expand('%') . '_outline'
-	let l:lst=buffer#OutlineTxtMakerLevel(a:lv)
+	let l:file=expand('%:p')
+	let l:lst=buffer#OutlineTxtMakerLevel(a:lv,l:file)
 	call buffer#GoToScratchVertical(l:scname,30)
 	let l:wscratch=winnr()
 	0put=l:lst
@@ -271,12 +271,22 @@ function! buffer#OutlineTxtShow(lv)
 	
 	"Buffer local mapping
 	exe 'nnoremap <buffer> <silent> <cr> :echo buffer#OutlineGetLine(' . l:worig  . ',' . l:wscratch . ')<CR>'
+	exe 'nnoremap <buffer> <silent> u :call buffer#OutlineTxtUpdateLevel('
 endfunction
 
-function! buffer#OutlineTxtUpdate
+"UPDATE OUTLINE SCRATCH BUFFER:
+function! buffer#OutlineTxtUpdateLevel(lv)
+	let l:line=line('.')
+	let l:file=expand('%:p')	
+	let l:file=split(l:file,'_outline')[0]
+	let l:lst=buffer#OutlineTxtMakerLevel(a:lv,l:file)
+	%d_
+	0put=l:lst
+	exe l:line
+	call buffer#OutlineTxtHighlight()
+endfunction
 
-
-"FUNCTION GO TO LINE HELPER FOR SHOW RESULTS:
+"GO TO LINE HELPER FOR OUTLINE SHOW:
 function! buffer#OutlineGetLine(worig,wscratch)
 	""woring - original window number
 	""wscratch - scratch buffer window number
@@ -287,5 +297,6 @@ function! buffer#OutlineGetLine(worig,wscratch)
 	let l:matchl=substitute(l:matchl,':','','')
 	call win_gotoid(a:worig)
 	exe l:matchl
+	normal! zt
 	exe a:wscratch . " wincmd w"
 endfunction
