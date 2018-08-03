@@ -99,6 +99,21 @@ function! buffer#GoToScratch(bufname,lines)
 endfunction
 ""echo buffer#GoToScratch("bufalo",10)
 
+function! buffer#GoToScratchVertical(bufname,cols)
+	let l:bfnr=bufwinnr(a:bufname)
+	if  l:bfnr > 0
+		"If buffer is visible, go to it and clear contents"
+		exe l:bfnr . "wincmd w"
+	else
+		"Create new scratch buffer"
+		exe  'topleft ' . a:cols . 'vnew ' a:bufname
+		:setlocal buftype=nowrite
+		:setlocal bufhidden=wipe
+		:setlocal noswapfile nobuflisted nomodified
+	endif
+endfunction
+""echo buffer#GoToScratchVertical("bufalo",10)
+
 ""TOGGLE CONCEAL CURSOR:
 function! buffer#ConcealCursorToggle()
 	if &concealcursor == ''
@@ -110,9 +125,9 @@ endfunction
 ""call buffer#ConcealCursorToggle()
 
 "Go to window number"
-fu! buffer#GoToWindow(nr)
+function! buffer#GoToWindow(nr)
 	exe a:nr . "wincmd w"
-endf
+endfunction
 
 ""SHOW BUFFER LIST INFO:
 function! buffer#BufferListChanger()
@@ -182,3 +197,95 @@ function! buffer#ExtractDellBuffer()
 	exe 'bw ' . l:bnr
 endfunction
 ""echo buffer#ExtracBuffNr()
+ 
+
+""CREATE OUTLINE LIST OF MARKUP FILE:
+function! buffer#OutlineTxtMaker(patt)
+	let l:file=expand('%:p')
+	let l:bashc='grep -E ' . a:patt . ' -n ' . l:file
+	let l:ls=systemlist(l:bashc)
+	return l:ls
+endfunction
+"echo buffer#OutlineMaker("let")
+
+""CREATE OUTLINE LIST UP TO LEVEL:
+function! buffer#OutlineTxtMakerLevel(lv)
+	if a:lv==1
+		let l:lst=buffer#OutlineTxtMaker('^#[[:space:]]')
+	elseif a:lv==2
+		let l:lst=buffer#OutlineTxtMaker('^\(#\)\{1,2\}[[:space:]]')
+	elseif a:lv==3
+		let l:lst=buffer#OutlineTxtMaker('^\(#\)\{1,3\}[[:space:]]')
+	elseif a:lv==4
+		let l:lst=buffer#OutlineTxtMaker('^\(#\)\{1,4\}[[:space:]]')
+	endif
+	return l:lst
+endfunction
+
+""HIGLIGHT OUTLINE LIST:
+function! buffer#OutlineTxtHighlight()
+	setlocal conceallevel=3
+	"Higlight line numbers
+	let l:hname="OutlineLineNumbers"
+	let l:patt='^\d\{-}\ze:'
+	let l:hicommand='highlight ' . l:hname . ' guifg=#C89600'
+	let l:mcommand='syn match ' . l:hname . ' ' . shellescape(l:patt) . ' conceal cchar=:'
+	exe l:hicommand
+	exe l:mcommand
+	
+	"Hilight bullets LV1
+	let l:hname="OutlineBullet1"
+	let l:patt=':\zs# .*'
+	let l:hicommand='highlight ' . l:hname . ' guifg=#FF0000'
+	let l:mcommand='syn match ' . l:hname . ' ' . shellescape(l:patt)
+	exe l:hicommand
+	exe l:mcommand
+
+	"Hilight bullets LV2
+	let l:hname="OutlineBullet2"
+	let l:patt=':\zs## '
+	let l:hicommand='highlight ' . l:hname . ' guifg=#F89600'
+	let l:mcommand='syn match ' . l:hname . ' ' . shellescape(l:patt)
+	exe l:hicommand
+	exe l:mcommand
+
+	"Hilight bullets LV3
+	let l:hname="OutlineBullet3"
+	let l:patt=':\zs### '
+	let l:hicommand='highlight ' . l:hname . ' guifg=#889600'
+	let l:mcommand='syn match ' . l:hname . ' ' . shellescape(l:patt)
+	exe l:hicommand
+	exe l:mcommand
+endfunction
+
+""OUTLINE LEVELS HIGLIGHT:
+function! buffer#OutlineTxtShow(lv)
+	let l:bufnr=bufnr("%")
+	let l:worig=win_getid()
+	let l:scname=expand('%') . '_outline'
+	let l:lst=buffer#OutlineTxtMakerLevel(a:lv)
+	call buffer#GoToScratchVertical(l:scname,30)
+	let l:wscratch=winnr()
+	0put=l:lst
+	call buffer#OutlineTxtHighlight()
+	
+	"Buffer local mapping
+	exe 'nnoremap <buffer> <silent> <cr> :echo buffer#OutlineGetLine(' . l:worig  . ',' . l:wscratch . ')<CR>'
+endfunction
+
+function! buffer#OutlineTxtUpdate
+
+
+"FUNCTION GO TO LINE HELPER FOR SHOW RESULTS:
+function! buffer#OutlineGetLine(worig,wscratch)
+	""woring - original window number
+	""wscratch - scratch buffer window number
+	""Extract number from line
+	let l:pattl='^\d\{-}:'
+	let l:line=getline('.')
+	let l:matchl=matchstr(l:line,l:pattl)
+	let l:matchl=substitute(l:matchl,':','','')
+	call win_gotoid(a:worig)
+	exe l:matchl
+	exe a:wscratch . " wincmd w"
+endfunction

@@ -5,9 +5,10 @@
 # Usage
 * example mapping
 nnoremap <leader><leader>l buffer#BufferListChanger()
-* automatic buffer list local mappings
+* automatic mappinggs local to buffer
 enter	'go to buffer under cursor'
 d		'delete (wipe) buffer under cursor from buffer list
+
 # Dependency
 vim-array
 
