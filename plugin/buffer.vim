@@ -258,33 +258,46 @@ function! buffer#OutlineTxtHighlight()
 endfunction
 
 ""OUTLINE LEVELS HIGLIGHT:
-function! buffer#OutlineTxtShow(lv)
+function! buffer#OutlineTxtShow()
+	let l:lv=1
 	let l:bufnr=bufnr("%")
 	let l:worig=win_getid()
 	let l:scname=expand('%') . '_outline'
 	let l:file=expand('%:p')
-	let l:lst=buffer#OutlineTxtMakerLevel(a:lv,l:file)
+	let l:lst=buffer#OutlineTxtMakerLevel(l:lv,l:file)
 	call buffer#GoToScratchVertical(l:scname,30)
 	let l:wscratch=winnr()
-	0put=l:lst
+	0put=1
+	1put=l:lst
 	call buffer#OutlineTxtHighlight()
 	
 	"Buffer local mapping
 	exe 'nnoremap <buffer> <silent> <cr> :echo buffer#OutlineGetLine(' . l:worig  . ',' . l:wscratch . ')<CR>'
-	exe 'nnoremap <buffer> <silent> u :call buffer#OutlineTxtUpdateLevel('
+	nnoremap <buffer> <silent> u :call buffer#OutlineTxtUpdateLevel()
+	nnoremap <buffer> <silent> + :call buffer#OutlineTxtUpdateLevel('+')<CR>
+	nnoremap <buffer> <silent> - :call buffer#OutlineTxtUpdateLevel('-')<CR>
 endfunction
 
 "UPDATE OUTLINE SCRATCH BUFFER:
-function! buffer#OutlineTxtUpdateLevel(lv)
+function! buffer#OutlineTxtUpdateLevel(...)
+	let l:lv = get(a:, 1, getline(1))
+	let l:curlv=getline(1)
+	if l:lv=='+' && l:curlv < 4
+		let l:curlv+=1
+	elseif l:lv=='-' && l:curlv > 1
+		let l:curlv-=1
+	endif
 	let l:line=line('.')
 	let l:file=expand('%:p')	
 	let l:file=split(l:file,'_outline')[0]
-	let l:lst=buffer#OutlineTxtMakerLevel(a:lv,l:file)
+	let l:lst=buffer#OutlineTxtMakerLevel(l:curlv,l:file)
 	%d_
-	0put=l:lst
-	exe l:line
+	0put=l:curlv
+	1put=l:lst
 	call buffer#OutlineTxtHighlight()
+	exe l:line
 endfunction
+
 
 "GO TO LINE HELPER FOR OUTLINE SHOW:
 function! buffer#OutlineGetLine(worig,wscratch)
