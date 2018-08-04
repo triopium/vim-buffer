@@ -11,6 +11,12 @@ enter	'go to buffer under cursor'
 d		'delete (wipe) buffer under cursor from buffer list
 
 ## show outline of markup file in split buffer
+* markup levels
+'# '	- level 1
+'## '	- level 2
+'### '	- level 3
+'#### '	- level 4
+
 * example mapping:
 nnoremap <leader><leader>o buffer#OutlineTxtShow()
 * automatic mappings local to buffer

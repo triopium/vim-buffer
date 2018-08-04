@@ -273,7 +273,7 @@ function! buffer#OutlineTxtShow()
 	
 	"Buffer local mapping
 	exe 'nnoremap <buffer> <silent> <cr> :echo buffer#OutlineGetLine(' . l:worig  . ',' . l:wscratch . ')<CR>'
-	nnoremap <buffer> <silent> u :call buffer#OutlineTxtUpdateLevel()
+	nnoremap <buffer> <silent> u :call buffer#OutlineTxtUpdateLevel()<CR>
 	nnoremap <buffer> <silent> + :call buffer#OutlineTxtUpdateLevel('+')<CR>
 	nnoremap <buffer> <silent> - :call buffer#OutlineTxtUpdateLevel('-')<CR>
 endfunction
