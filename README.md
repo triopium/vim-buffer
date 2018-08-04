@@ -18,7 +18,7 @@ d		'delete (wipe) buffer under cursor from buffer list
 '#### '	- level 4
 
 * example mapping:
-nnoremap <leader><leader>o buffer#OutlineTxtShow()
+nnoremap <leader><leader>o buffer#OutlineTxtShow()<CR>
 * automatic mappings local to buffer
 u	'update outline'
 -	'decrease the outline level
