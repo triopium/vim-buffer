@@ -76,6 +76,17 @@ endfunction
 ""echo buffer#DeleteAllOther()
 
 ""CREATE SCRATCH BUFFER:
+function! buffer#CreateNewScratchForRedir(bufname)
+	"Create new buffer"
+	exe 'new' a:bufname
+	:setlocal nu
+	:setlocal buftype=nofile
+	" :setlocal bufhidden=wipe
+	:setlocal bufhidden=hide
+	:setlocal noswapfile
+endfunction
+
+""CREATE SCRATCH BUFFER:
 function! buffer#CreateNewScratch(bufname)
 	"Create new buffer"
 	exe 'new' a:bufname
@@ -145,7 +156,9 @@ function! buffer#BufferListChanger()
 		:setlocal bufhidden=wipe
 		:setlocal noswapfile nobuflisted nomodified
 		let l:list=buffer#BufferListConstruct()
+		set ma
 		0put=l:list
+		set noma
 		
 		""Higlight
 		let l:hname='bufferListNr1'
@@ -313,3 +326,87 @@ function! buffer#OutlineGetLine(worig,wscratch)
 	normal! zt
 	exe a:wscratch . " wincmd w"
 endfunction
+
+
+func! buffer#LSbuffers()
+	let l:names=[]
+	" for buf in getbufinfo({'buflisted':1})
+	" for buf in getbufinfo({'listed':1})
+	for buf in getbufinfo()
+			" echo buf
+		" call add(l:names,buf.name)
+		call add(l:names,buf)
+		return l:names
+	endfor
+	" return l:names
+	" ls!
+	" l:names=[]
+	" for buf in getbufinfo()
+		" call add(l:names,buf.name)
+	" endfor
+	" return l:names
+endf
+
+func buffer#QuicfixVisible()
+	for wininfo in getwininfo()
+		if wininfo.quickfix == 1
+			return 1
+		endif
+	endfor
+endf
+	
+func buffer#NERDTreeVisible()
+" Check if nerdtree visible
+	if exists("g:NERDTree") && g:NERDTree.IsOpen()
+		return 1
+  endif
+	return 0
+endf
+
+func buffer#GetUnsavedFiles()
+  let unsaved_files = []
+  for bufnum in range(1, bufnr('$'))
+    if buflisted(bufnum) && getbufvar(bufnum, "&modified")
+      call add(unsaved_files, bufname(bufnum))
+    endif
+  endfor
+  return unsaved_files
+endf
+
+func buffer#CloseBufferHelper()
+	"Close nerdtree buffer if visible, the quickfix buffer, then current
+	"buffer, if last buffer and files modified ask to save them else quit
+	if buffer#QuicfixVisible() == 1
+		cclose 
+		return
+	endif	
+
+	if buffer#NERDTreeVisible() == 1
+		NERDTreeClose
+		return
+	endif	
+
+	if winnr('$') > 1
+		close
+		return
+	endif
+
+	let unsaved_files=buffer#GetUnsavedFiles()
+	if len(unsaved_files) == 0
+		quit
+	endif
+	
+	"TREAT UNSAVED FILES
+	echo "Unsaved files:"
+	for file in unsaved_files
+		echo ' - ' . file
+	endfor
+
+	let choice = confirm('Save all files and quit?', '&Yes\n&No', 1)
+	if choice == 1
+		wall
+		quit	
+	elseif choice != 1
+		return
+	endif
+endf
