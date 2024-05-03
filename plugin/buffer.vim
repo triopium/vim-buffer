@@ -1,3 +1,4 @@
+runtime buffer.vim9.vim
 "GET MAXIMUM LINE WIDTH IN BUFFER:"
 function! buffer#LinesWidthMax()
 	let l:lines=getline(1,'$')
@@ -354,6 +355,14 @@ func buffer#QuicfixVisible()
 		endif
 	endfor
 endf
+
+func buffer#LocListVisible()
+	for wininfo in getwininfo()
+		if wininfo.loclist == 1
+			return 1
+		endif
+	endfor
+endf
 	
 func buffer#NERDTreeVisible()
 " Check if nerdtree visible
@@ -376,10 +385,15 @@ endf
 func buffer#CloseBufferHelper()
 	"Close nerdtree buffer if visible, the quickfix buffer, then current
 	"buffer, if last buffer and files modified ask to save them else quit
+	if buffer#LocListVisible() == 1
+		lclose
+		return
+	endif
+
 	if buffer#QuicfixVisible() == 1
 		cclose 
 		return
-	endif	
+	endif
 
 	if buffer#NERDTreeVisible() == 1
 		NERDTreeClose
@@ -409,4 +423,5 @@ func buffer#CloseBufferHelper()
 	elseif choice != 1
 		return
 	endif
+	return
 endf
